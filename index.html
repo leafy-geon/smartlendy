@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>SMARTLend</title>
+
+  <!-- SheetJS Library for proper Excel export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #2a2a2a;
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #333;
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 2em;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .header p {
+      font-size: 0.9em;
+      color: #ddd;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .form-section {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+    }
+
+    .form-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    input[type="text"],
+    input[type="date"] {
+      flex: 1;
+      min-width: 150px;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95em;
+      font-family: Arial, sans-serif;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #666;
+      background: #fff;
+    }
+
+    input::placeholder {
+      color: #999;
+    }
+
+    button {
+      padding: 8px 15px;
+      border: 1px solid #999;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-weight: normal;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    button[type="submit"] {
+      background: #4CAF50;
+      border-color: #4CAF50;
+    }
+
+    button[type="submit"]:hover {
+      background: #45a049;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .controls button {
+      padding: 8px 15px;
+      font-size: 0.9em;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    #removeOfflineBtn {
+      background: #f44336;
+      border-color: #f44336;
+    }
+
+    #removeOfflineBtn:hover {
+      background: #da190b;
+    }
+
+    #exportExcelBtn {
+      background: #2196F3;
+      border-color: #2196F3;
+    }
+
+    #exportExcelBtn:hover {
+      background: #0b7dda;
+    }
+
+    #exportTextBtn {
+      background: #FF9800;
+      border-color: #FF9800;
+    }
+
+    #exportTextBtn:hover {
+      background: #e68900;
+    }
+
+    .table-section {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background: #444;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: bold;
+      font-size: 0.9em;
+      border: 1px solid #ddd;
+    }
+
+    td {
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      font-size: 0.9em;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #f9f9f9;
+    }
+
+    tbody tr:hover {
+      background: #f0f0f0;
+    }
+
+    .status-online {
+      display: inline-block;
+      background: #c8e6c9;
+      color: #2e7d32;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: bold;
+    }
+
+    .status-offline {
+      display: inline-block;
+      background: #ffcccc;
+      color: #c62828;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-weight: bold;
+    }
+
+    .action-btn {
+      padding: 5px 10px;
+      font-size: 0.8em;
+      border-radius: 3px;
+      border: 1px solid #999;
+      cursor: pointer;
+      font-weight: normal;
+    }
+
+    .return-btn {
+      background: #4CAF50;
+      border-color: #4CAF50;
+      color: white;
+    }
+
+    .return-btn:hover {
+      background: #45a049;
+    }
+
+    .remove-btn {
+      background: #f44336;
+      border-color: #f44336;
+      color: white;
+    }
+
+    .remove-btn:hover {
+      background: #da190b;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        border-radius: 0;
+      }
+
+      .header {
+        padding: 15px;
+      }
+
+      .header h1 {
+        font-size: 1.5em;
+      }
+
+      .content {
+        padding: 15px;
+      }
+
+      .form-section {
+        padding: 12px;
+      }
+
+      .form-group {
+        flex-direction: column;
+      }
+
+      input[type="text"],
+      input[type="date"],
+      button[type="submit"] {
+        width: 100%;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .controls button {
+        min-width: auto;
+      }
+
+      th, td {
+        padding: 8px;
+        font-size: 0.85em;
+      }
+
+      .action-btn {
+        padding: 4px 8px;
+        font-size: 0.75em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .header {
+        padding: 12px;
+      }
+
+      .header h1 {
+        font-size: 1.3em;
+        margin-bottom: 3px;
+      }
+
+      .header p {
+        font-size: 0.8em;
+      }
+
+      .content {
+        padding: 12px;
+      }
+
+      .form-section {
+        padding: 10px;
+        margin-bottom: 15px;
+      }
+
+      input[type="text"],
+      input[type="date"] {
+        padding: 8px;
+        font-size: 16px;
+      }
+
+      button {
+        padding: 8px 12px;
+      }
+
+      .controls {
+        gap: 8px;
+      }
+
+      th, td {
+        padding: 6px 4px;
+        font-size: 0.75em;
+      }
+
+      .action-btn {
+        padding: 4px 6px;
+        font-size: 0.7em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>SMARTLend</h1>
+  </div>
+
+  <div class="content">
+    <div class="form-section">
+      <form id="logForm">
+        <div class="form-group">
+          <input id="deviceName" type="text" placeholder="Device (PC 1-50 or TB 1-50)" required>
+          <input id="borrowerName" type="text" placeholder="Borrower's name" required>
+          <input type="date" id="dateBorrowed">
+          <button type="submit">Add & Start</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="controls" id="controls">
+      <button id="removeOfflineBtn" type="button">
+        Remove All Offline
+      </button>
+      <button id="exportExcelBtn" type="button">
+        Export to Excel
+      </button>
+      <button id="exportTextBtn" type="button">
+        Export to Text
+      </button>
+    </div>
+
+    <div class="table-section">
+      <table>
+        <thead>
+          <tr>
+            <th>Device</th>
+            <th>Status</th>
+            <th>Borrower</th>
+            <th>Time Borrowed</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="logTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+
+let logs = JSON.parse(localStorage.getItem('deviceLogs')) || [];
+let timerInterval = null;
+
+
+const tableBody = document.getElementById('logTableBody');
+const form = document.getElementById('logForm');
+const deviceInput = document.getElementById('deviceName');
+const borrowerInput = document.getElementById('borrowerName');
+const dateInput = document.getElementById('dateBorrowed');
+const removeOfflineBtn = document.getElementById('removeOfflineBtn');
+const exportExcelBtn = document.getElementById('exportExcelBtn');
+const exportTextBtn = document.getElementById('exportTextBtn');
+
+
+function saveLogs() {
+  localStorage.setItem('deviceLogs', JSON.stringify(logs));
+}
+
+function formatElapsed(ms) {
+  if (!ms || ms <= 0) return '0h 0m 0s';
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${h}h ${m}m ${sec}s`;
+}
+
+function elapsedTime(start, end) {
+  if (!start) return '0h 0m 0s';
+  return formatElapsed((end ?? Date.now()) - start);
+}
+
+
+function render() {
+  tableBody.innerHTML = '';
+  if (logs.length === 0) {
+    tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">No logs yet. Add a device to get started!</td></tr>';
+    return;
+  }
+  logs.forEach((log, i) => {
+    const tr = document.createElement('tr');
+    const statusClass = log.status === 'Online' ? 'status-online' : 'status-offline';
+    const statusText = log.status === 'Online' ? '🟢 Online' : '🔴 Offline';
+    
+    tr.innerHTML = `
+      <td>${log.deviceName}</td>
+      <td><span class="${statusClass}">${statusText}</span></td>
+      <td>${log.borrowerName}</td>
+      <td id="timer-${i}">
+        ${elapsedTime(log.startTime, log.status === 'Online' ? null : log.endTime)}
+      </td>
+      <td>${log.dateBorrowed}</td>
+      <td>
+        ${log.status === 'Online'
+          ? `<button class="action-btn return-btn" onclick="markReturned(${i})">Return</button>`
+          : `<button class="action-btn remove-btn" onclick="removeLog(${i})">Remove</button>`
+        }
+      </td>
+    `;
+    tableBody.appendChild(tr);
+  });
+  startTimer();
+}
+
+
+function startTimer() {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    logs.forEach((log, i) => {
+      if (log.status !== 'Online') return;
+      const el = document.getElementById(`timer-${i}`);
+      if (el) el.textContent = elapsedTime(log.startTime);
+    });
+  }, 1000);
+}
+
+
+function markReturned(i) {
+  logs[i].status = 'Offline';
+  logs[i].endTime = Date.now();
+  saveLogs();
+  render();
+}
+
+function removeLog(i) {
+  logs.splice(i, 1);
+  saveLogs();
+  render();
+}
+
+function removeAllOffline() {
+  logs = logs.filter(l => l.status === 'Online');
+  saveLogs();
+  render();
+}
+
+function isValidDevice(deviceName) {
+  const name = deviceName.trim().toUpperCase();
+  
+
+  const pcMatch = name.match(/^PC\s*(\d+)$/);
+  if (pcMatch) {
+    const num = parseInt(pcMatch[1]);
+    return num >= 1 && num <= 50;
+  }
+  
+
+  const tbMatch = name.match(/^TB\s*(\d+)$/);
+  if (tbMatch) {
+    const num = parseInt(tbMatch[1]);
+    return num >= 1 && num <= 50;
+  }
+  
+  return false;
+}
+
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+
+  const d = deviceInput.value.trim();
+  const b = borrowerInput.value.trim();
+  const date = dateInput.value || new Date().toISOString().slice(0,10);
+
+  if (!d || !b) return alert('Please enter device and borrower.');
+
+  if (!isValidDevice(d)) {
+    return alert('Invalid device name!\n\nAllowed devices:\n• PC 1 to PC 50\n• TB 1 to TB 50\n\nExample: "PC 1" or "TB 25"');
+  }
+
+  logs.push({
+    deviceName: d.trim().toUpperCase(),
+    borrowerName: b,
+    status: 'Online',
+    startTime: Date.now(),
+    endTime: null,
+    dateBorrowed: date
+  });
+
+  saveLogs();
+  form.reset();
+  render();
+});
+
+removeOfflineBtn.onclick = () => {
+  if (confirm('Remove all offline logs?')) removeAllOffline();
+};
+
+/* ========= exl export (.XLSX) ========= */
+exportExcelBtn.onclick = () => {
+  if (!logs.length) return alert('No logs to export.');
+
+  const data = logs.map(l => ({
+    Device: l.deviceName,
+    Status: l.status,
+    Borrower: l.borrowerName,
+    'Time Borrowed': elapsedTime(l.startTime, l.endTime),
+    Date: l.dateBorrowed
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  
+  // Auto-fit clmn widths
+  const colWidths = [15, 10, 15, 20, 15];
+  ws['!cols'] = colWidths.map(w => ({ wch: w }));
+  
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'SMARTLend Logs');
+
+  XLSX.writeFile(wb, `device-logs-${new Date().toISOString().slice(0,10)}.xlsx`);
+};
+
+/* ========= (.TXT) ========= */
+exportTextBtn.onclick = () => {
+  if (!logs.length) return alert('No logs to export.');
+
+  const timestamp = new Date().toLocaleString();
+  const separator = '─'.repeat(90);
+  
+  let textContent = `SMARTLend Device Logs Report\nExported: ${timestamp}\n\n${separator}\n\n`;
+  
+  logs.forEach((log, index) => {
+    textContent += `Record #${index + 1}\n`;
+    textContent += `  Device:        ${log.deviceName}\n`;
+    textContent += `  Status:        ${log.status}\n`;
+    textContent += `  Borrower:      ${log.borrowerName}\n`;
+    textContent += `  Date:          ${log.dateBorrowed}\n`;
+    textContent += `  Time Borrowed: ${elapsedTime(log.startTime, log.endTime)}\n`;
+    textContent += `\n${separator}\n\n`;
+  });
+  
+  const blob = new Blob([textContent], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `device-logs-${new Date().toISOString().slice(0,10)}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+
+window.markReturned = markReturned;
+window.removeLog = removeLog;
+
+
+render();
+</script>
+
+</body>
+</html>
